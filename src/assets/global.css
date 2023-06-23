@@ -1,0 +1,57 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: "Bellinzo Light";
+  src: url("BellinzoLightLight.woff2") format("woff2"),
+    url("BellinzoLightLight.woff") format("woff");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Bellinzo";
+  src: url("BellinzoRegularRegular.woff2") format("woff2"),
+    url("BellinzoRegularRegular.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Bellinzo Light";
+  src: url("BellinzoLightLight.woff2") format("woff2"),
+    url("BellinzoLightLight.woff") format("woff");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Bellinzo";
+  src: url("BellinzoBoldBold.woff2") format("woff2"),
+    url("BellinzoBoldBold.woff") format("woff");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Bellinzo";
+  src: url("BellinzoRegularRegular.woff2") format("woff2"),
+    url("BellinzoRegularRegular.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Bellinzo";
+  src: url("BellinzoBoldBold.woff2") format("woff2"),
+    url("BellinzoBoldBold.woff") format("woff");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
