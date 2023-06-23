@@ -7,15 +7,12 @@ module.exports = {
   ],
 
   theme: {
-    colors: { Style: "#1c1b1b", "#FFFFFF": "#ffffff" },
-    fontSize: {
-      xs: "0.75rem",
-      sm: "0.875rem",
-      base: "1rem",
-      lg: "1.125rem",
-      xl: "2rem",
-      "2xl": "2.625rem",
-      "3xl": "4.5rem",
+    extend: {
+      colors: { primary: "#1c1b1b", secondary: "#ffffff" },
+      fontSize: {
+        "10xl": "10rem",
+        "11xl": "12rem",
+      },
     },
     fontFamily: {
       display: ["Bellinzo Regular"],

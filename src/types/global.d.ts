@@ -7,6 +7,10 @@ declare global {
     body: string;
   }
 
+  interface TopicPageData extends PhotoTopicType {
+    medias: WpImage[];
+  }
+
   interface WpImage {
     ID: number;
     id: number;
@@ -65,17 +69,25 @@ declare global {
   interface WpLink {
     title: string;
     url: string;
-    target: string;
+    target?: string;
   }
 
   interface HomeDataType {
     header: HeroHeaderFieldType;
     About: AboutFieldType;
+    gallery: GalleriesSectionType;
+    photo_topics: PhotoTopicType[];
+  }
+
+  interface GalleriesSectionType {
+    galleries: GalleryType[];
+    title: string;
+    description: string;
   }
 
   interface HeroHeaderFieldType {
     title: string;
-    hero: WpImage;
+    hero: { hero_image: WpImage; title: string };
   }
 
   interface AboutFieldType {
@@ -84,11 +96,19 @@ declare global {
     cta: WpLink;
   }
 
-  interface GallerySectionType {
+  interface WpEntry {
+    slug: string;
+    id?: string;
+    ID?: string;
+    type: string;
+    link: string;
+  }
+
+  interface GalleryType extends WpEntry {
     title: string;
     main_title: string;
     main_image: WpImage;
-    photos;
+    photos: GalleryImagePhoyo;
   }
 
   interface GalleryImagePhoyo {
@@ -101,6 +121,19 @@ declare global {
     medium_srcset: string;
     url: string;
     target: string;
+  }
+
+  interface PhotoTopicType {
+    id: number;
+    count: number;
+    description: string;
+    link: string;
+    name: string;
+    slug: string;
+    taxonomy: sting;
+    parent: number;
+    meta: any;
+    acf: any;
   }
 
   declare module "*.glsl" {

@@ -1,49 +1,29 @@
 const DOMAIN_URL = "https://cms.irving.suarez.digital/wp-json/wp/v2";
 
 type CustomRelationship = {
-  fieldName: string;
-  posts: any[];
+  post_type: string;
+  ID: any;
 };
 
 export async function getHome() {
-  const postsRes = await fetch(DOMAIN_URL + "/home");
+  const postsRes = await fetch(DOMAIN_URL + "/photography_home");
   const posts = await postsRes.json();
 
   return posts[0].acf;
 }
 
-function getRelationShipFields(postObject: any) {
-  let relationshipFields = Object.keys(postObject).flatMap((fieldName) => {
-    let field = postObject[fieldName];
-
-    let isRelationShipField =
-      Array.isArray(field) &&
-      field.some(
-        ({ post_type }) =>
-          typeof post_type === "string" && post_type !== "attachment"
-      );
-
-    if (isRelationShipField) {
-      return {
-        fieldName,
-        posts: field,
-      } as CustomRelationship;
-    } else {
-      return [];
-    }
-  });
-
-  return relationshipFields;
-}
-
-export async function getGalleryIndividual(post_name: string) {
+export async function getGallery(post_name: string) {
   const postsRes = await fetch(
     DOMAIN_URL + "/photo_gallery" + `?slug=${post_name}`
   );
 
   const posts = await postsRes.json();
-
-  return posts[0].acf;
+  const post = posts[0];
+  return {
+    ...post,
+    ...post.acf,
+    acf: null,
+  };
 }
 
 export async function getHomeData(): Promise<HomeDataType | undefined> {
@@ -63,30 +43,20 @@ export async function getHomeData(): Promise<HomeDataType | undefined> {
             let sectionSchema = fieldSchema[fieldKeyName];
 
             if (Array.isArray(sectionSchema)) {
-              let joinedSchema = await getFields(
-                fieldSchema.post_type,
-                fieldSchema.ID
-              );
+              let arrayOfRel = await Promise.all(
+                sectionSchema.map(
+                  async ({ post_type, ID }: CustomRelationship) => {
+                    console.log("post_type, ID", post_type, ID);
+                    let relationshipJoined = await getFields(post_type, ID);
 
-              let relationshipFields = getRelationShipFields(joinedSchema);
-
-              await Promise.all(
-                relationshipFields.map(
-                  async ({ posts, fieldName }: CustomRelationship) => {
-                    let relationshipJoined = await Promise.all(
-                      posts.map((post) => getFields(post.post_type, post.ID))
-                    );
-
-                    joinedSchema[fieldName] = relationshipJoined;
+                    return relationshipJoined;
                   }
                 )
               );
 
-              fieldSchema[fieldKeyName] = joinedSchema;
-              return;
-            } else {
-              return [];
+              fieldSchema[fieldKeyName] = arrayOfRel;
             }
+            return;
           }
         );
 
@@ -100,6 +70,11 @@ export async function getHomeData(): Promise<HomeDataType | undefined> {
 
     await Promise.all(arrayOfPromises);
 
+    let photo_topics = await getTopics();
+
+    if (photo_topics) {
+      homeBaseSchema.photo_topics = photo_topics;
+    }
     return homeBaseSchema;
   } catch (error) {
     console.error(error);
@@ -111,5 +86,66 @@ export async function getFields(post_type: string, post_id: string[]) {
 
   const posts = await postsRes.json();
 
-  return { ...posts, ...posts.acf };
+  return { ...posts, ...posts.acf, acf: null, _links: null };
+}
+
+export async function getTopics() {
+  const postsRes = await fetch(`${DOMAIN_URL}/photo_topics?`);
+
+  const posts = await postsRes.json();
+
+  return posts.map((post: PhotoTopicType) => ({
+    ...post,
+    ...post.acf,
+    acf: null,
+    _links: null,
+  }));
+}
+
+export async function getGalleries() {
+  const postsRes = await fetch(`${DOMAIN_URL}/photo_gallery?`);
+
+  const posts = await postsRes.json();
+
+  return posts.map((post: PhotoTopicType) => ({
+    ...post,
+    ...post.acf,
+    acf: null,
+    _links: null,
+  }));
+}
+
+export async function getTopic(slug: string) {
+  const postsRes = await fetch(`${DOMAIN_URL}/photo_topics?slug=${slug}`);
+
+  const [topic] = await postsRes.json();
+
+  return topic;
+}
+
+export async function getPhotoTopics(photo_topic_id: string | number) {
+  const postsRes = await fetch(
+    `${DOMAIN_URL}/media?photo_topics=${photo_topic_id}`
+  );
+
+  const posts = await postsRes.json();
+
+  return { ...posts, ...posts.acf, acf: null, _links: null };
+}
+
+export async function getTopicPageData(slug: string) {
+  const topic: PhotoTopicType = await getTopic(slug);
+  const medias: WpImage[] = await getPhotoTopics(topic.id);
+
+  return {
+    ...topic,
+    medias,
+  };
+}
+export async function getGalleryPageData(slug: string) {
+  const gallery: GalleryType = await getGallery(slug);
+
+  return {
+    ...gallery,
+  };
 }

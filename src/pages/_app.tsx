@@ -1,10 +1,13 @@
 import "../assets/global.css";
 import "../assets/global.scss";
+import Layout from "../layouts/default";
 
 function _app({ Component, pageProps }: any) {
   return (
     <>
-      <Component {...pageProps} />
+      <Layout>
+        <Component {...pageProps} />
+      </Layout>
     </>
   );
 }
