@@ -3,12 +3,9 @@ import {
   GALLERY_CARD_CLASSNAME,
   GALLERY_SECTION_CLASSNAME,
 } from "../types/constants";
-import { setTimeout } from "timers/promises";
 
 export default function getGalleryCardImages() {
-  const [cardImages, setCardImages] = useState<null | NodeListOf<Element>>(
-    null
-  );
+  const [cardImages, setCardImages] = useState<null | HTMLImageElement[]>(null);
 
   useEffect(() => {
     setTimeout(() => {
@@ -16,13 +13,16 @@ export default function getGalleryCardImages() {
         `.${GALLERY_SECTION_CLASSNAME} .${GALLERY_CARD_CLASSNAME} img`
       );
 
-      if (imagesNodeList.length > 0) {
-        let nodesArray: Node[] = [];
+      let nodesArray: HTMLImageElement[] = [];
 
-        imagesNodeList.forEach((item) => nodesArray.push(item));
+      if (imagesNodeList.length > 0) {
+        imagesNodeList.forEach(
+          (item: Element) =>
+            item instanceof HTMLImageElement && nodesArray.push(item)
+        );
       }
 
-      setCardImages(imagesNodeList);
+      setCardImages(nodesArray);
     }, 1000);
   }, []);
 
