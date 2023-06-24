@@ -3,37 +3,88 @@ import * as THREE from "three";
 import { useStartScene } from "../hooks/StartScene";
 import fragment from "../shader/fragmet.glsl";
 import vertex from "../shader/vertex.glsl";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+
+import LavaTexture from "../../assets/lava.jpg";
+
+import getGalleryCardImages from "../../hooks/getGalleryCardImages";
 
 export default ({ element }: any) => {
-  const [geometry] = useState(new THREE.PlaneGeometry(0.5, 0.5, 10, 10));
+  const [geometry, setGeometry] = useState<null | THREE.PlaneGeometry>(null);
 
-  const [material] = useState(
-    new THREE.ShaderMaterial({
-      side: THREE.DoubleSide,
-      fragmentShader: fragment,
-      vertexShader: vertex,
-    })
-  );
+  const [material, setMaterial] = useState<null | THREE.ShaderMaterial>(null);
 
-  const [mesh, setMesh] = useState<THREE.Mesh>(
-    new THREE.Mesh(geometry, material)
-  );
+  const [controls, setControls] = useState<null | OrbitControls>(null);
+
+  const [mesh, setMesh] = useState<THREE.Mesh | null>(null);
+
+  const { cardImages } = getGalleryCardImages();
+
+  useEffect(() => {
+    first;
+
+    return () => {
+      second;
+    };
+  }, [cardImages]);
+
+  const animationFunction = (time: number) => {
+    time += 0.05;
+    if (!material || !renderer || !camera || !scene) {
+      return;
+    }
+    material.uniforms.time.value = time;
+
+    renderer?.render(scene, camera);
+    // window.requestAnimationFrame(animationFunction);
+  };
 
   let { mountScene, camera, renderer, scene } = useStartScene({
     element,
-    animationFunction: (time) => {
-      // mesh.rotation.x = time / 2000;
-      // mesh.rotation.y = time / 1000;
-
-      renderer?.render(scene, camera);
-    },
+    animationFunction,
   });
 
   useEffect(() => {
-    if (scene) {
-      scene?.add(mesh);
+    if (!material) {
+      var someMaterial: any = new THREE.MeshNormalMaterial();
+      someMaterial = new THREE.ShaderMaterial({
+        side: THREE.DoubleSide,
+        fragmentShader: fragment,
+        vertexShader: vertex,
+        wireframe: true,
+        uniforms: {
+          time: { value: 0 },
+          oceanTexture: {
+            value: new THREE.TextureLoader().load(LavaTexture),
+          },
+        },
+      });
+      setMaterial(someMaterial);
+      return;
     }
-  }, [scene]);
+
+    if (!geometry) {
+      var newGeometry: any = new THREE.PlaneBufferGeometry(200, 400, 10, 10);
+
+      setGeometry(newGeometry);
+      return;
+    }
+
+    if (!scene) {
+      return;
+    }
+
+    let newPlane = new THREE.Mesh(geometry, material);
+
+    scene?.add(newPlane);
+  }, [material, scene, geometry]);
+
+  useEffect(() => {
+    if (camera) {
+      // camera?.position.set(0, 0, 100);
+      setControls(new OrbitControls(camera, renderer?.domElement));
+    }
+  }, [camera]);
 
   return { mountScene, camera, scene, mesh, material, renderer };
 };

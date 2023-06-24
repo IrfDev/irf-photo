@@ -1,11 +1,12 @@
 import Link from "next/link";
 import BaseImage from "./BaseImage";
+import { GALLERY_CARD_CLASSNAME } from "../../types/constants";
 
 const GalleryCard = ({ main_image, main_title, title, slug }: GalleryType) => {
   return (
     <Link
       href={`/gallery/${slug}`}
-      className="relative block"
+      className={`${GALLERY_CARD_CLASSNAME} relative block gallery-card`}
       scroll={true}
       style={{
         height: "90vh",

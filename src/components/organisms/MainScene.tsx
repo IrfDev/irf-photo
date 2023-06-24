@@ -15,11 +15,7 @@ const MainScene = (props: Props) => {
     }
   }, [renderer]);
 
-  return (
-    <div className="h-screen" ref={divRef}>
-      MainScene
-    </div>
-  );
+  return <div className="h-screen sticky w-full top-2 z-0" ref={divRef} />;
 };
 
 export default MainScene;

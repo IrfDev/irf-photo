@@ -5,9 +5,9 @@ const nextConfig = {
   sassOptions: {
     includePaths: [path.join(__dirname, "styles")],
   },
-  eslint: false,
-  experimental: { esmExternals: true },
+
   images: {
+    disableStaticImages: true,
     remotePatterns: [
       {
         protocol: "https",
@@ -23,11 +23,29 @@ const nextConfig = {
     config,
     { buildId, dev, isServer, defaultLoaders, nextRuntime, webpack }
   ) => {
-    config.module.rules.push({
+    const shaderLoader = {
       test: /\.(glsl|vs|fs|vert|frag)$/,
-      loader: "ts-shader-loader",
-      options: {},
-    });
+      use: [{ loader: "ts-shader-loader", options: {} }],
+    };
+
+    config.module.rules.push(shaderLoader);
+
+    const fileLoader = {
+      test: /\.(png|jpeg|jpg|gif)$/i,
+
+      use: [
+        {
+          loader: "file-loader",
+
+          options: {
+            publicPath: "/_next",
+            name: "static/media/[name].[hash].[ext]",
+          },
+        },
+      ],
+    };
+
+    config.module.rules.push(fileLoader);
 
     return {
       ...config,

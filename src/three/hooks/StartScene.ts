@@ -25,39 +25,44 @@ export function useStartScene({
 
   const mountScene = () => {
     if (isRefAnElement(element) && element.current && renderer) {
-      if (camera) {
-        camera.position.z = 1;
-      }
-      renderer.setSize(
-        element.current.clientWidth,
-        element.current.clientHeight
-      );
-
+      // animationFunction(0);
       renderer.setAnimationLoop(animationFunction);
-      element?.current?.appendChild(renderer.domElement);
     }
   };
 
   useEffect(() => {
+    setScene(new THREE.Scene());
     if (element && element.current) {
       let newCam = new THREE.PerspectiveCamera(
-        75,
+        70,
         element.current.clientWidth / element.current.clientHeight,
-        0.1,
-        10
+        100,
+        2000
       );
 
+      newCam.fov =
+        2 * Math.atan(element.current.clientHeight / 2 / 600) * (180 / Math.PI);
+
+      newCam.position.z = 600;
+
       setCamera(newCam);
+
+      let newRenderer = new THREE.WebGLRenderer({
+        antialias: true,
+        alpha: true,
+      });
+
+      newRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+      newRenderer.setSize(
+        element.current.clientWidth,
+        element.current.clientHeight
+      );
+
+      element?.current?.appendChild(newRenderer.domElement);
+
+      setRenderer(newRenderer);
     }
-
-    setScene(new THREE.Scene());
-
-    setRenderer(new THREE.WebGLRenderer({ antialias: true }));
-
-    return () => {
-      scene?.remove();
-      camera?.remove();
-    };
   }, [element]);
 
   return {
