@@ -7,9 +7,14 @@ import MainScene from "../organisms/MainScene";
 import getMounter from "../../three/example/useMain";
 
 import { GALLERY_SECTION_CLASSNAME } from "../../types/constants";
+import { generateUUID } from "three/src/math/MathUtils";
 
 interface GalleriesProps extends GalleriesSectionType {
   photo_topics: PhotoTopicType[];
+}
+
+interface GalleryListProps {
+  galleries: GalleryType[];
 }
 
 const Galleries = ({
@@ -19,6 +24,7 @@ const Galleries = ({
   photo_topics,
 }: GalleriesProps) => {
   const divRef = useRef(null);
+
   const triggerElement = useRef(null);
 
   const { mountScene, renderer } = getMounter({
@@ -33,15 +39,10 @@ const Galleries = ({
   }, [renderer]);
 
   return (
-    <div
-      ref={triggerElement}
-      className={`relative ${GALLERY_SECTION_CLASSNAME}`}
-    >
+    <div className={`relative ${GALLERY_SECTION_CLASSNAME} h-full w-full`}>
       <h1 className="xl:text-8xl lg:text-7xl md:text-5xl sm:text-4xl text-3xl text-primary uppercase md:text-left text-center">
         {title}
       </h1>
-
-      <div className="fixed h-screen w-screen z-0 top-0 left-0" ref={divRef} />
 
       <RichText
         className="font-light md:text-left text-center text-lg my-4"
@@ -61,19 +62,59 @@ const Galleries = ({
         ))}
       </div>
 
-      <div className="grid gap-4 grid-flow-row md:grid-cols-2 grid-cols-1">
-        {galleries.map((gallery) => (
-          <>
-            <GalleryCard {...gallery} key={gallery.id + 1} />
-            <GalleryCard {...gallery} key={gallery.id + 2} />
-            <GalleryCard {...gallery} key={gallery.id + 3} />
-            <GalleryCard {...gallery} key={gallery.id + 4} />
-            <GalleryCard {...gallery} key={gallery.id + 5} />
-            <GalleryCard {...gallery} key={gallery.id + 6} />
-          </>
-        ))}
+      <div
+        className="grid gap-4 grid-flow-row md:grid-cols-2 grid-cols-1 relative"
+        id="gallery-grid-element"
+        ref={triggerElement}
+        data-speed="0.5"
+      >
+        <GalleryList galleries={galleries} />
       </div>
+      <div className="absolute z-50 h-full w-full  top-0 left-0" ref={divRef} />
     </div>
+  );
+};
+
+const GalleryList = ({ galleries }: GalleryListProps) => {
+  const generateKey = ({
+    id,
+    index,
+  }: {
+    id: number | string;
+    index: number;
+  }): string => `${id}-${index}`;
+
+  return (
+    <>
+      {galleries.map((gallery, index) => (
+        <>
+          <GalleryCard
+            {...gallery}
+            key={generateKey({ id: gallery.id, index: 1 })}
+          />
+          <GalleryCard
+            {...gallery}
+            key={generateKey({ id: gallery.id, index: 2 })}
+          />
+          <GalleryCard
+            {...gallery}
+            key={generateKey({ id: gallery.id, index: 3 })}
+          />
+          <GalleryCard
+            {...gallery}
+            key={generateKey({ id: gallery.id, index: 4 })}
+          />
+          <GalleryCard
+            {...gallery}
+            key={generateKey({ id: gallery.id, index: 5 })}
+          />
+          <GalleryCard
+            {...gallery}
+            key={generateKey({ id: gallery.id, index: 6 })}
+          />
+        </>
+      ))}
+    </>
   );
 };
 

@@ -4,7 +4,7 @@ import { isRefAnElement } from "../../utils/misc";
 
 type InitializatorArgs = {
   element: MutableRefObject<null | HTMLElement>;
-  animationFunction: XRFrameRequestCallback;
+  animationFunction: FrameRequestCallback;
   sceneArgs?: any[];
   cameraArgs?: any[];
   rendererArgs?: any[];
@@ -20,13 +20,17 @@ export function useStartScene({
   withControls = false,
 }: InitializatorArgs) {
   const [scene, setScene] = useState<null | THREE.Scene>(null);
+
   const [camera, setCamera] = useState<null | THREE.Camera>(null);
+
   const [renderer, setRenderer] = useState<null | THREE.WebGLRenderer>(null);
 
   const mountScene = () => {
     if (isRefAnElement(element) && element.current && renderer) {
       // animationFunction(0);
-      renderer.setAnimationLoop(animationFunction);
+      // renderer.setAnimationLoop(animationFunction);
+      // window.requestAnimationFrame(animationFunction);
+      animationFunction(0);
     }
   };
 

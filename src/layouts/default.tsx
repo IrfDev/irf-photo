@@ -8,14 +8,16 @@ type DefaultLayoutProps = {
 
 export default function ({ children }: DefaultLayoutProps) {
   return (
-    <main
-      className="mx-auto 2xl:px-0 px-5"
-      style={{
-        maxWidth: "1510px",
-      }}
-    >
-      <Navbar />
-      {children}
+    <main>
+      <section
+        className="mx-auto 2xl:px-0 px-5"
+        style={{
+          maxWidth: "1510px",
+        }}
+      >
+        <Navbar />
+        {children}
+      </section>
       <Footer />
     </main>
   );

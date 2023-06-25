@@ -98,7 +98,7 @@ declare global {
 
   interface WpEntry {
     slug: string;
-    id?: string;
+    id: string;
     ID?: string;
     type: string;
     link: string;

@@ -3,12 +3,25 @@ import * as THREE from "three";
 import { useStartScene } from "../hooks/StartScene";
 import fragment from "../shader/fragmet.glsl";
 import vertex from "../shader/vertex.glsl";
+import { GALLERY_SECTION_CLASSNAME } from "../../types/constants";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 import { gsap } from "gsap";
 
 import getGalleryCardImages from "../../hooks/getGalleryCardImages";
+
 import getScrollTrigger from "../../animations/ScrollTrigger";
+
+type ImageStore = {
+  img: HTMLImageElement;
+  mesh: THREE.Mesh;
+  top: number;
+  left: number;
+  width: number;
+  height: number;
+};
+
+import ocean from "../../assets/lava.jpg";
 
 export default ({ element, triggerElement }: any) => {
   const [materials, setMaterials] = useState<THREE.ShaderMaterial[]>([]);
@@ -18,18 +31,19 @@ export default ({ element, triggerElement }: any) => {
   const [raycaster, setRayCaster] = useState<THREE.Raycaster>(
     new THREE.Raycaster()
   );
+
+  const [time, setTime] = useState<number>(0);
+
   const [mouse, setMouse] = useState<THREE.Vector2>(new THREE.Vector2());
 
-  const [imageStore, setImageStore] = useState<any>(null);
+  const [imageStore, setImageStore] = useState<null | ImageStore[]>(null);
 
   const { cardImages } = getGalleryCardImages();
 
-  const { currentScroll } = getScrollTrigger({
-    triggerElement,
-  });
+  const { scrollTrigger } = getScrollTrigger("gallery-grid-element");
 
-  const animationFunction = (time: number) => {
-    time += 0.05;
+  const animationFunction = () => {
+    setTime(time + 0.05);
     if (!materials || !renderer || !camera || !scene) {
       return;
     }
@@ -43,7 +57,7 @@ export default ({ element, triggerElement }: any) => {
     });
 
     renderer?.render(scene, camera);
-    // window.requestAnimationFrame(animationFunction);
+    window.requestAnimationFrame(animationFunction);
   };
 
   let { mountScene, camera, renderer, scene } = useStartScene({
@@ -53,14 +67,26 @@ export default ({ element, triggerElement }: any) => {
 
   let setPosition = () => {
     if (Array.isArray(imageStore) && imageStore.length > 0) {
-      imageStore.forEach((o: any) => {
-        o.mesh.position.y =
-          currentScroll -
-          o.top +
-          element.current.clientHeight / 2 -
-          o.height / 2;
-        o.mesh.position.x =
-          o.left - element.current.clientWidth / 2 + o.width / 2;
+      let { height, width } = getElementSize();
+      imageStore.forEach((o) => {
+        let halfContainerHeight = height / 2;
+
+        let halfImageHeight = o.height / 2;
+
+        let yPosition =
+          0 * height - o.top + halfContainerHeight - halfImageHeight;
+
+        // o.mesh.position.y =
+        //   scrollTrigger.progress * height - o.top + height / 2 - o.height / 2;
+        o.mesh.position.setY(yPosition);
+
+        let halfContainerWidth = width / 2;
+
+        let halfImageWidth = o.width / 2;
+
+        let xPosition = o.left - halfContainerWidth + halfImageWidth;
+        // o.mesh.position.x = o.left - width / 2 + o.width / 2;
+        o.mesh.position.setX(xPosition);
       });
     }
   };
@@ -82,62 +108,76 @@ export default ({ element, triggerElement }: any) => {
         uImage: { value: 0 },
         hover: { value: new THREE.Vector2(0.5, 0.5) },
         hoverState: { value: 0 },
+        oceanTexture: { value: new THREE.TextureLoader().load(ocean) },
       },
       side: THREE.DoubleSide,
       fragmentShader: fragment,
       vertexShader: vertex,
     });
 
-    let newImageStore = cardImages.map((img) => {
-      let bounds = img.getBoundingClientRect();
+    let newImageStore: Array<ImageStore> = cardImages.map(
+      (img: HTMLImageElement) => {
+        let bounds = img.getBoundingClientRect();
 
-      let newGeometry = new THREE.PlaneGeometry(
-        bounds.width,
-        bounds.height,
-        10,
-        10
-      );
+        let newGeometry = new THREE.PlaneGeometry(
+          bounds.width,
+          bounds.height,
+          10,
+          10
+        );
 
-      let texture = new THREE.Texture(img);
+        let texture = new THREE.Texture(img);
 
-      texture.needsUpdate = true;
+        texture.needsUpdate = true;
 
-      let imageMaterial = newMaterial.clone();
+        let imageMaterial = newMaterial.clone();
 
-      img.addEventListener("mouseenter", () => {
-        gsap.to(imageMaterial.uniforms.hoverState, {
-          duration: 1,
-          value: 1,
-        });
-      });
+        img.onmouseenter = () => {
+          gsap.to(imageMaterial.uniforms.hoverState, {
+            duration: 1,
+            value: 1,
+          });
+        };
 
-      img.addEventListener("mouseout", () => {
-        gsap.to(imageMaterial.uniforms.hoverState, {
-          duration: 1,
-          value: 0,
-        });
-      });
+        img.onmouseout = () => {
+          gsap.to(imageMaterial.uniforms.hoverState, {
+            duration: 1,
+            value: 0,
+          });
+        };
 
-      imageMaterial.uniforms.uImage.value = texture;
+        setMaterials([...materials, imageMaterial]);
 
-      setMaterials([...materials, imageMaterial]);
+        imageMaterial.uniforms.uImage.value = texture;
 
-      let newMesh = new THREE.Mesh(newGeometry, imageMaterial);
+        let newMesh = new THREE.Mesh(newGeometry, imageMaterial);
 
-      scene?.add(newMesh);
+        scene?.add(newMesh);
 
-      return {
-        img: img,
-        mesh: newMesh,
-        top: bounds.top,
-        left: bounds.left,
-        width: bounds.width,
-        height: bounds.height,
-      };
-    });
-
+        return {
+          img: img,
+          mesh: newMesh,
+          top: bounds.top,
+          left: bounds.left,
+          width: bounds.width,
+          height: bounds.height,
+        };
+      }
+    );
+    setMouseMovement();
     setImageStore(newImageStore);
   }, [cardImages, scene]);
+
+  const getTriggerElementSize = () => {
+    const domElement = document.getElementsByClassName(
+      GALLERY_SECTION_CLASSNAME
+    )[0];
+
+    return {
+      height: domElement.clientHeight,
+      width: domElement.clientWidth,
+    };
+  };
 
   const getElementSize = () => ({
     height: element.current.clientHeight,

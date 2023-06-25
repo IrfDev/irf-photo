@@ -12,7 +12,7 @@ const Header = ({ hero, title }: HeroHeaderFieldType) => {
           {...hero.hero_image}
         />
 
-        <div className="absolute w-full md:p-10 p-5 bottom-0 flex justify-between items-end">
+        <div className="absolute w-full md:p-10 p-5 bottom-0 flex justify-between items-end  select-none">
           <span className="text-white xl:text-6xl lg:text-5xl md:text-4xl sm:text-3xl text-xl block w-1/3 uppercase font-body">
             {hero.title}
           </span>
