@@ -67,26 +67,17 @@ export default ({ element, triggerElement }: any) => {
 
   let setPosition = () => {
     if (Array.isArray(imageStore) && imageStore.length > 0) {
-      let { height, width } = getElementSize();
+      let { height, width, top, left } = getElementSize();
       imageStore.forEach((o) => {
-        let halfContainerHeight = height / 2;
+        let actualTop = Math.abs(top - o.top);
+        let actualLeft = Math.abs(left - o.left);
 
-        let halfImageHeight = o.height / 2;
+        let yPosition = -actualTop + height / 2 - o.height / 2;
 
-        let yPosition =
-          0 * height - o.top + halfContainerHeight - halfImageHeight;
+        let xPosition = actualLeft - width / 2 + o.width / 2;
 
-        // o.mesh.position.y =
-        //   scrollTrigger.progress * height - o.top + height / 2 - o.height / 2;
-        o.mesh.position.setY(yPosition);
-
-        let halfContainerWidth = width / 2;
-
-        let halfImageWidth = o.width / 2;
-
-        let xPosition = o.left - halfContainerWidth + halfImageWidth;
-        // o.mesh.position.x = o.left - width / 2 + o.width / 2;
         o.mesh.position.setX(xPosition);
+        o.mesh.position.setY(yPosition);
       });
     }
   };
@@ -113,10 +104,11 @@ export default ({ element, triggerElement }: any) => {
       side: THREE.DoubleSide,
       fragmentShader: fragment,
       vertexShader: vertex,
+      wireframe: true,
     });
 
     let newImageStore: Array<ImageStore> = cardImages.map(
-      (img: HTMLImageElement) => {
+      (img: HTMLImageElement, index: number) => {
         let bounds = img.getBoundingClientRect();
 
         let newGeometry = new THREE.PlaneGeometry(
@@ -125,30 +117,28 @@ export default ({ element, triggerElement }: any) => {
           10,
           10
         );
-
-        let texture = new THREE.Texture(img);
+        let texture = new THREE.TextureLoader().load(img.src);
 
         texture.needsUpdate = true;
 
         let imageMaterial = newMaterial.clone();
+        imageMaterial.uniforms.uImage.value = texture;
 
-        img.onmouseenter = () => {
-          gsap.to(imageMaterial.uniforms.hoverState, {
-            duration: 1,
-            value: 1,
-          });
-        };
+        // img.onmouseenter = () => {
+        //   gsap.to(imageMaterial.uniforms.hoverState, {
+        //     duration: 1,
+        //     value: 1,
+        //   });
+        // };
 
-        img.onmouseout = () => {
-          gsap.to(imageMaterial.uniforms.hoverState, {
-            duration: 1,
-            value: 0,
-          });
-        };
+        // img.onmouseout = () => {
+        //   gsap.to(imageMaterial.uniforms.hoverState, {
+        //     duration: 1,
+        //     value: 0,
+        //   });
+        // };
 
         setMaterials([...materials, imageMaterial]);
-
-        imageMaterial.uniforms.uImage.value = texture;
 
         let newMesh = new THREE.Mesh(newGeometry, imageMaterial);
 
@@ -164,24 +154,15 @@ export default ({ element, triggerElement }: any) => {
         };
       }
     );
-    setMouseMovement();
     setImageStore(newImageStore);
+    setMouseMovement();
   }, [cardImages, scene]);
-
-  const getTriggerElementSize = () => {
-    const domElement = document.getElementsByClassName(
-      GALLERY_SECTION_CLASSNAME
-    )[0];
-
-    return {
-      height: domElement.clientHeight,
-      width: domElement.clientWidth,
-    };
-  };
 
   const getElementSize = () => ({
     height: element.current.clientHeight,
     width: element.current.clientWidth,
+    top: element.current.getBoundingClientRect().top,
+    left: element.current.getBoundingClientRect().left,
   });
 
   const setMouseMovement = () => {

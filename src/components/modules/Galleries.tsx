@@ -70,7 +70,10 @@ const Galleries = ({
       >
         <GalleryList galleries={galleries} />
       </div>
-      <div className="absolute z-50 h-full w-full  top-0 left-0" ref={divRef} />
+      <div
+        className="absolute z-50 h-full w-full top-0 left-0 right-0 bottom-0 m-auto"
+        ref={divRef}
+      />
     </div>
   );
 };

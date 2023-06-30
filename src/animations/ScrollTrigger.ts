@@ -86,7 +86,7 @@ export default function getScrollTrigger(elementId: any) {
           onUpdate: function (scrollTriggerInstance: ScrollTrigger) {
             setCurrentScroll(scrollTriggerInstance.progress * 100);
             setDirection(scrollTriggerInstance.direction);
-            console.log("direction,currentScroll", direction, currentScroll);
+
             calculatePosition();
           },
         });

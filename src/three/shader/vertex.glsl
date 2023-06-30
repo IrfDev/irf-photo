@@ -80,24 +80,22 @@ uniform float hoverState;
 varying float vNoise;
 varying vec2 vUv;
 
-
 void main() {
-    vec3 newposition = position;
-    float PI = 3.1415925;
 
-    float noise = cnoise(3.*vec3(position.x,position.y,position.z + time/30.));
-    // newposition.z += 0.1*sin( (newposition.x  + 0.25 + time/10.)*2.*PI);
-    
-    float dist = distance(uv,hover);
+  vec3 newPosition = position;
 
-    newposition.z += hoverState*10.*sin(dist*10. + time);
+  float PI = 3.1415925;
+  // newPosition.z += 0.1*sin(newPosition.x*15.);
 
-    // newposition.z += 0.05*sin(dist*40. );
+  float noice = cnoise(vec3(position.x,position.y,position.z * time/300.));
 
-    // newposition += 0.1*normal*noise;
+  // float dist = distance(uv, vec2(0.5));
 
-    vNoise = hoverState*sin(dist*10. - time);
-    vUv = uv;
+  // newPosition.z += 0.2*sin(dist * 40.);
+  // newPosition += 0.1*normal*noice;
 
-    gl_Position = projectionMatrix * modelViewMatrix * vec4( newposition, 1.0 );
+  vNoise = noice;
+  vUv = uv;
+
+  gl_Position = projectionMatrix * modelViewMatrix * vec4( newPosition, 1.0 );
 }

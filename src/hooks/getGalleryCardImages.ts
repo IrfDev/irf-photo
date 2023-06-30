@@ -23,7 +23,7 @@ export default function getGalleryCardImages() {
       }
 
       setCardImages(nodesArray);
-    }, 1000);
+    }, 100);
   }, []);
 
   return { cardImages };

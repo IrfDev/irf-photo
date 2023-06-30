@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import React, { MutableRefObject, useEffect, useState } from "react";
 import { isRefAnElement } from "../../utils/misc";
+import getWindowSize from "../../hooks/getWindowSize";
 
 type InitializatorArgs = {
   element: MutableRefObject<null | HTMLElement>;
@@ -30,6 +31,7 @@ export function useStartScene({
       // animationFunction(0);
       // renderer.setAnimationLoop(animationFunction);
       // window.requestAnimationFrame(animationFunction);
+
       animationFunction(0);
     }
   };
@@ -44,10 +46,10 @@ export function useStartScene({
         2000
       );
 
+      newCam.position.z = 600;
+
       newCam.fov =
         2 * Math.atan(element.current.clientHeight / 2 / 600) * (180 / Math.PI);
-
-      newCam.position.z = 600;
 
       setCamera(newCam);
 
@@ -62,6 +64,11 @@ export function useStartScene({
         element.current.clientWidth,
         element.current.clientHeight
       );
+
+      newCam.aspect =
+        element.current.clientWidth / element.current.clientHeight;
+
+      newCam.updateProjectionMatrix();
 
       element?.current?.appendChild(newRenderer.domElement);
 
