@@ -117,27 +117,29 @@ export default ({ element, triggerElement }: any) => {
           10,
           10
         );
-        let texture = new THREE.TextureLoader().load(img.src);
 
+        let texture = new THREE.TextureLoader().load(img.src);
         texture.needsUpdate = true;
 
         let imageMaterial = newMaterial.clone();
+
+        img.onmouseenter = () => {
+          console.log("onmouseenter");
+          gsap.to(imageMaterial.uniforms.hoverState, {
+            duration: 1,
+            value: 1,
+          });
+        };
+
+        img.onmouseout = () => {
+          console.log("onmouseout");
+          gsap.to(imageMaterial.uniforms.hoverState, {
+            duration: 1,
+            value: 0,
+          });
+        };
+
         imageMaterial.uniforms.uImage.value = texture;
-
-        // img.onmouseenter = () => {
-        //   gsap.to(imageMaterial.uniforms.hoverState, {
-        //     duration: 1,
-        //     value: 1,
-        //   });
-        // };
-
-        // img.onmouseout = () => {
-        //   gsap.to(imageMaterial.uniforms.hoverState, {
-        //     duration: 1,
-        //     value: 0,
-        //   });
-        // };
-
         setMaterials([...materials, imageMaterial]);
 
         let newMesh = new THREE.Mesh(newGeometry, imageMaterial);
@@ -176,10 +178,12 @@ export default ({ element, triggerElement }: any) => {
         let { height, width } = getElementSize();
 
         let mouseX = (event.clientX / width) * 2 - 1;
-        mouse.setX(mouseX);
 
         let mouseY = -(event.clientY / height) * 2 + 1;
-        mouse.setY(mouseY);
+
+        mouse.x = mouseX;
+
+        mouse.y = mouseY;
 
         // update the picking ray with the camera and mouse position
         raycaster.setFromCamera(mouse, camera);

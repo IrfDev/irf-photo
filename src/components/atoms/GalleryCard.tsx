@@ -12,7 +12,10 @@ const GalleryCard = ({ main_image, main_title, title, slug }: GalleryType) => {
         height: "90vh",
       }}
     >
-      <BaseImage className="object-cover w-full h-5/6" {...main_image} />
+      <BaseImage
+        className="object-cover w-full h-5/6 opacity-0"
+        {...main_image}
+      />
       <div className="mt-4">
         <small className="uppercase block font-light tracking-wider ">
           {title} / PHOTOGRAPHY

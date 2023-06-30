@@ -40,6 +40,10 @@ const Galleries = ({
 
   return (
     <div className={`relative ${GALLERY_SECTION_CLASSNAME} h-full w-full`}>
+      <div
+        className="absolute z-50 h-full w-full top-0 left-0 right-0 bottom-0 m-auto"
+        ref={divRef}
+      />
       <h1 className="xl:text-8xl lg:text-7xl md:text-5xl sm:text-4xl text-3xl text-primary uppercase md:text-left text-center">
         {title}
       </h1>
@@ -70,10 +74,6 @@ const Galleries = ({
       >
         <GalleryList galleries={galleries} />
       </div>
-      <div
-        className="absolute z-50 h-full w-full top-0 left-0 right-0 bottom-0 m-auto"
-        ref={divRef}
-      />
     </div>
   );
 };

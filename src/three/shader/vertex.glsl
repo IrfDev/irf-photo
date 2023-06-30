@@ -87,14 +87,14 @@ void main() {
   float PI = 3.1415925;
   // newPosition.z += 0.1*sin(newPosition.x*15.);
 
-  float noice = cnoise(vec3(position.x,position.y,position.z * time/300.));
+  float noice = cnoise(3.*vec3(position.x,position.y,position.z * time/300.));
 
-  // float dist = distance(uv, vec2(0.5));
+  float dist = distance(uv, hover);
 
-  // newPosition.z += 0.2*sin(dist * 40.);
+  newPosition.z += hoverState*100.*sin(dist * 10.+time);
   // newPosition += 0.1*normal*noice;
 
-  vNoise = noice;
+  vNoise = hoverState*sin(dist*10. - time);
   vUv = uv;
 
   gl_Position = projectionMatrix * modelViewMatrix * vec4( newPosition, 1.0 );
