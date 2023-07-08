@@ -4,11 +4,11 @@ import {
   GALLERY_SECTION_CLASSNAME,
 } from "../types/constants";
 
-export default function getGalleryCardImages() {
+export default function useGetGalleryCardImage() {
   const [cardImages, setCardImages] = useState<null | HTMLImageElement[]>(null);
 
   useEffect(() => {
-    setTimeout(() => {
+    const setImages = async () => {
       let imagesNodeList = document.querySelectorAll(
         `.${GALLERY_SECTION_CLASSNAME} .${GALLERY_CARD_CLASSNAME} img`
       );
@@ -22,21 +22,36 @@ export default function getGalleryCardImages() {
         );
       }
 
+      await Promise.all(
+        nodesArray.map((newImage: HTMLImageElement) => {
+          return new Promise<any>((resolve, reject) => {
+            newImage.addEventListener("error", (error) => {
+              console.log("onload2");
+              reject(error);
+            });
+            if (newImage.complete) {
+              resolve(true);
+            } else {
+              newImage.onload = () => {
+                console.log("onload");
+                resolve(true);
+              };
+
+              newImage.addEventListener("load", () => {
+                console.log("onload2");
+                resolve(true);
+              });
+            }
+          });
+        })
+      );
+
+      console.log("imagesReady", nodesArray);
       setCardImages(nodesArray);
-    }, 1000);
+    };
+
+    setImages();
   }, []);
 
   return { cardImages };
 }
-
-export const waitForImages = async (cardImages: HTMLImageElement[]) => {
-  return Promise.all(
-    cardImages.map(async (newImage: HTMLImageElement) => {
-      return new Promise<Event>((resolve, reject) => {
-        newImage.onload = (loadData) => {
-          resolve(loadData);
-        };
-      });
-    })
-  );
-};

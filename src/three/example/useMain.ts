@@ -8,9 +8,7 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 import { gsap } from "gsap";
 
-import getGalleryCardImages, {
-  waitForImages,
-} from "../../hooks/getGalleryCardImages";
+import useGetGalleryCardImage from "../../hooks/getGalleryCardImages";
 
 import getScrollTrigger from "../../animations/ScrollTrigger";
 
@@ -25,12 +23,7 @@ type ImageStore = {
 
 import ocean from "../../assets/lava.jpg";
 
-export default ({
-  element,
-  triggerElement,
-}: {
-  element: MutableRefObject<null | HTMLElement>;
-}) => {
+export default ({ element }: any) => {
   const [materials, setMaterials] = useState<THREE.ShaderMaterial[]>([]);
 
   const [controls, setControls] = useState<null | OrbitControls>(null);
@@ -41,24 +34,22 @@ export default ({
 
   const [time, setTime] = useState<number>(0);
 
-  const [mouse, setMouse] = useState<THREE.Vector2>(new THREE.Vector2());
-
   const [imageStore, setImageStore] = useState<null | ImageStore[]>(null);
 
-  const { cardImages } = getGalleryCardImages();
-
-  const { scrollTrigger } = getScrollTrigger("gallery-grid-element");
+  const [mouse, setMouse] = useState<THREE.Vector2>(new THREE.Vector2());
+  const { cardImages } = useGetGalleryCardImage();
 
   const animationFunction = () => {
-    setTime(time + 0.5);
     if (!materials || !renderer || !camera || !scene) {
       return;
     }
 
+    setTime(time + 0.5);
+
     setPosition();
 
     materials.forEach((m) => {
-      m.uniforms.time.value = time;
+      m.uniforms.time.value = time + 0.5;
     });
 
     renderer?.render(scene, camera);
@@ -93,108 +84,105 @@ export default ({
     }
   }, [imageStore]);
 
-  const mountImages = async () => {
+  useEffect(() => {
     if (!cardImages || !scene) {
       return;
     }
 
-    let baseMaterial = new THREE.ShaderMaterial({
-      uniforms: {
-        time: { value: 1 },
-        uImage: { value: 0 },
-        hover: { value: new THREE.Vector2(0.5, 0.5) },
-        hoverState: { value: 0 },
-        oceanTexture: { value: new THREE.TextureLoader().load(ocean) },
-      },
-      side: THREE.DoubleSide,
-      fragmentShader: fragment,
-      vertexShader: vertex,
-    });
-
-    await waitForImages(cardImages);
-
-    let newImageStore: Array<ImageStore> = await Promise.all(
-      cardImages.map(async (img: HTMLImageElement, index: number) => {
-        let bounds = img.getBoundingClientRect();
-
-        let newGeometry = new THREE.PlaneGeometry(
-          bounds.width,
-          bounds.height,
-          10,
-          10
-        );
-
-        let imageMaterial = baseMaterial.clone();
-        let texture = new THREE.Texture(img);
-
-        texture.needsUpdate = true;
-
-        imageMaterial.uniforms.uImage.value = texture;
-
-        setMaterials([...materials, imageMaterial]);
-
-        let newMesh = new THREE.Mesh(newGeometry, imageMaterial);
-
-        scene?.add(newMesh);
-
-        img.addEventListener("mouseenter", () => {
-          gsap.to(imageMaterial.uniforms.hoverState, {
-            duration: 1,
-            value: 1,
-          });
+    const mountImages = async () => {
+      try {
+        let baseMaterial = new THREE.ShaderMaterial({
+          uniforms: {
+            time: { value: 0 },
+            uImage: { value: 0 },
+            hover: { value: new THREE.Vector2(0.5, 0.5) },
+            hoverState: { value: 0 },
+            oceanTexture: { value: new THREE.TextureLoader().load(ocean) },
+          },
+          side: THREE.DoubleSide,
+          fragmentShader: fragment,
+          vertexShader: vertex,
         });
 
-        img.onmouseout = () => {
-          console.log("onmouseout");
-          gsap.to(imageMaterial.uniforms.hoverState, {
-            duration: 1,
-            value: 0,
-          });
-        };
+        let newImageStore: Array<ImageStore> = cardImages.map(
+          (img: HTMLImageElement, index: number) => {
+            let bounds = img.getBoundingClientRect();
 
-        return {
-          img: img,
-          mesh: newMesh,
-          top: bounds.top,
-          left: bounds.left,
-          width: bounds.width,
-          height: bounds.height,
-        };
-      })
-    );
+            let newGeometry = new THREE.PlaneGeometry(
+              bounds.width,
+              bounds.height,
+              10,
+              10
+            );
 
-    setImageStore(newImageStore);
-    setMouseMovement();
-  };
+            let imageMaterial = baseMaterial.clone();
 
-  useEffect(() => {
+            let texture = new THREE.TextureLoader().load(img.src);
+
+            texture.needsUpdate = true;
+
+            img.onmouseenter = () => {
+              gsap.to(imageMaterial.uniforms.hoverState, {
+                duration: 1,
+                value: 1,
+              });
+            };
+
+            img.onmouseout = () => {
+              gsap.to(imageMaterial.uniforms.hoverState, {
+                duration: 1,
+                value: 0,
+              });
+            };
+
+            setMaterials([...materials, imageMaterial]);
+
+            imageMaterial.uniforms.uImage.value = texture;
+            let newMesh = new THREE.Mesh(newGeometry, imageMaterial);
+
+            scene?.add(newMesh);
+
+            return {
+              img: img,
+              mesh: newMesh,
+              top: bounds.top,
+              left: bounds.left,
+              width: bounds.width,
+              height: bounds.height,
+            };
+          }
+        );
+
+        setImageStore(newImageStore);
+        setPosition();
+        setMouseMovement();
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
     mountImages();
-  }, [cardImages, scene, element]);
+  }, [cardImages, scene]);
 
   const getElementSize = () => ({
-    height: element.current.clientHeight,
-    width: element.current.clientWidth,
-    top: element.current.getBoundingClientRect().top,
-    left: element.current.getBoundingClientRect().left,
+    height: element?.current?.getBoundingClientRect().height,
+    width: element?.current?.getBoundingClientRect().width,
+    top: element?.current?.getBoundingClientRect().top,
+    left: element?.current?.getBoundingClientRect().left,
   });
 
   const setMouseMovement = () => {
-    element?.current?.addEventListener(
+    element?.current?.parentElement.addEventListener(
       "mousemove",
       (event: MouseEvent) => {
-        if (!camera || !scene || !mouse) {
-          return;
-        }
-
         let { height, width } = getElementSize();
 
         let mouseX = (event.clientX / width) * 2 - 1;
 
         let mouseY = -(event.clientY / height) * 2 + 1;
 
-        mouse.x = mouseX;
-
-        mouse.y = mouseY;
+        mouse.setX(mouseX);
+        mouse.setY(mouseY);
 
         // update the picking ray with the camera and mouse position
         raycaster.setFromCamera(mouse, camera);
