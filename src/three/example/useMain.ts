@@ -172,14 +172,14 @@ export default ({ element }: any) => {
   });
 
   const setMouseMovement = () => {
-    element?.current?.parentElement.addEventListener(
+    element?.current?.addEventListener(
       "mousemove",
       (event: MouseEvent) => {
         let { height, width } = getElementSize();
 
-        let mouseX = (event.clientX / width) * 2 - 1;
+        let mouseX = event.offsetX;
 
-        let mouseY = -(event.clientY / height) * 2 + 1;
+        let mouseY = event.offsetY;
 
         mouse.setX(mouseX);
         mouse.setY(mouseY);
