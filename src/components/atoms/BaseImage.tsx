@@ -5,7 +5,7 @@ const BaseImage = (props: any) => {
   if (typeof props.width === "number") {
     let wpProps: WpImage = props;
     return (
-      <Image
+      <img
         className={props.className || ""}
         alt={wpProps.alt}
         height={wpProps.height}
@@ -17,8 +17,7 @@ const BaseImage = (props: any) => {
   } else {
     let photoProp: GalleryImagePhoyo = props;
     return (
-      <Image
-        fill={true}
+      <img
         className={props.className || ""}
         placeholder="empty"
         src={photoProp.full_image_url}

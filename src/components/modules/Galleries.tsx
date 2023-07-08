@@ -67,12 +67,17 @@ const Galleries = ({
       </div>
 
       <div
-        className="grid gap-4 grid-flow-row md:grid-cols-2 grid-cols-1 relative"
+        className="grid gap-4 grid-flow-row md:grid-cols-2 grid-cols-1 relative z-50"
         id="gallery-grid-element"
         ref={triggerElement}
         data-speed="0.5"
       >
-        <GalleryList galleries={galleries} />
+        <GalleryCard {...galleries[0]} key={1} />
+        <GalleryCard {...galleries[0]} key={2} />
+        <GalleryCard {...galleries[0]} key={3} />
+        <GalleryCard {...galleries[0]} key={4} />
+        <GalleryCard {...galleries[0]} key={5} />
+        <GalleryCard {...galleries[0]} key={6} />
       </div>
     </div>
   );
@@ -90,32 +95,14 @@ const GalleryList = ({ galleries }: GalleryListProps) => {
   return (
     <>
       {galleries.map((gallery, index) => (
-        <>
-          <GalleryCard
-            {...gallery}
-            key={generateKey({ id: gallery.id, index: 1 })}
-          />
-          <GalleryCard
-            {...gallery}
-            key={generateKey({ id: gallery.id, index: 2 })}
-          />
-          <GalleryCard
-            {...gallery}
-            key={generateKey({ id: gallery.id, index: 3 })}
-          />
-          <GalleryCard
-            {...gallery}
-            key={generateKey({ id: gallery.id, index: 4 })}
-          />
-          <GalleryCard
-            {...gallery}
-            key={generateKey({ id: gallery.id, index: 5 })}
-          />
-          <GalleryCard
-            {...gallery}
-            key={generateKey({ id: gallery.id, index: 6 })}
-          />
-        </>
+        <div>
+          <GalleryCard {...gallery} key={1} />
+          <GalleryCard {...gallery} key={2} />
+          <GalleryCard {...gallery} key={3} />
+          <GalleryCard {...gallery} key={4} />
+          <GalleryCard {...gallery} key={5} />
+          <GalleryCard {...gallery} key={6} />
+        </div>
       ))}
     </>
   );

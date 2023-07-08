@@ -1,6 +1,7 @@
 import Link from "next/link";
 import BaseImage from "./BaseImage";
 import { GALLERY_CARD_CLASSNAME } from "../../types/constants";
+import { HtmlHTMLAttributes } from "react";
 
 const GalleryCard = ({ main_image, main_title, title, slug }: GalleryType) => {
   return (
@@ -13,7 +14,7 @@ const GalleryCard = ({ main_image, main_title, title, slug }: GalleryType) => {
       }}
     >
       <BaseImage
-        className="object-cover w-full h-5/6 opacity-0"
+        className="object-cover w-full h-5/6  opacity-0"
         {...main_image}
       />
       <div className="mt-4">

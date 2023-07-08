@@ -28,3 +28,15 @@ export default function getGalleryCardImages() {
 
   return { cardImages };
 }
+
+export const waitForImages = async (cardImages: HTMLImageElement[]) => {
+  return Promise.all(
+    cardImages.map(async (newImage: HTMLImageElement) => {
+      return new Promise<Event>((resolve, reject) => {
+        newImage.onload = (loadData) => {
+          resolve(loadData);
+        };
+      });
+    })
+  );
+};

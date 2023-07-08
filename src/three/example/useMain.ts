@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { MutableRefObject, useEffect, useState } from "react";
 import * as THREE from "three";
 import { useStartScene } from "../hooks/StartScene";
 import fragment from "../shader/fragmet.glsl";
@@ -8,7 +8,9 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 import { gsap } from "gsap";
 
-import getGalleryCardImages from "../../hooks/getGalleryCardImages";
+import getGalleryCardImages, {
+  waitForImages,
+} from "../../hooks/getGalleryCardImages";
 
 import getScrollTrigger from "../../animations/ScrollTrigger";
 
@@ -23,7 +25,12 @@ type ImageStore = {
 
 import ocean from "../../assets/lava.jpg";
 
-export default ({ element, triggerElement }: any) => {
+export default ({
+  element,
+  triggerElement,
+}: {
+  element: MutableRefObject<null | HTMLElement>;
+}) => {
   const [materials, setMaterials] = useState<THREE.ShaderMaterial[]>([]);
 
   const [controls, setControls] = useState<null | OrbitControls>(null);
@@ -43,14 +50,12 @@ export default ({ element, triggerElement }: any) => {
   const { scrollTrigger } = getScrollTrigger("gallery-grid-element");
 
   const animationFunction = () => {
-    setTime(time + 0.05);
+    setTime(time + 0.5);
     if (!materials || !renderer || !camera || !scene) {
       return;
     }
 
     setPosition();
-
-    // this.material.uniforms.time.value = this.time;
 
     materials.forEach((m) => {
       m.uniforms.time.value = time;
@@ -88,14 +93,14 @@ export default ({ element, triggerElement }: any) => {
     }
   }, [imageStore]);
 
-  useEffect(() => {
+  const mountImages = async () => {
     if (!cardImages || !scene) {
       return;
     }
 
-    let newMaterial = new THREE.ShaderMaterial({
+    let baseMaterial = new THREE.ShaderMaterial({
       uniforms: {
-        time: { value: 0 },
+        time: { value: 1 },
         uImage: { value: 0 },
         hover: { value: new THREE.Vector2(0.5, 0.5) },
         hoverState: { value: 0 },
@@ -104,11 +109,12 @@ export default ({ element, triggerElement }: any) => {
       side: THREE.DoubleSide,
       fragmentShader: fragment,
       vertexShader: vertex,
-      wireframe: true,
     });
 
-    let newImageStore: Array<ImageStore> = cardImages.map(
-      (img: HTMLImageElement, index: number) => {
+    await waitForImages(cardImages);
+
+    let newImageStore: Array<ImageStore> = await Promise.all(
+      cardImages.map(async (img: HTMLImageElement, index: number) => {
         let bounds = img.getBoundingClientRect();
 
         let newGeometry = new THREE.PlaneGeometry(
@@ -118,18 +124,25 @@ export default ({ element, triggerElement }: any) => {
           10
         );
 
-        let texture = new THREE.TextureLoader().load(img.src);
+        let imageMaterial = baseMaterial.clone();
+        let texture = new THREE.Texture(img);
+
         texture.needsUpdate = true;
 
-        let imageMaterial = newMaterial.clone();
+        imageMaterial.uniforms.uImage.value = texture;
 
-        img.onmouseenter = () => {
-          console.log("onmouseenter");
+        setMaterials([...materials, imageMaterial]);
+
+        let newMesh = new THREE.Mesh(newGeometry, imageMaterial);
+
+        scene?.add(newMesh);
+
+        img.addEventListener("mouseenter", () => {
           gsap.to(imageMaterial.uniforms.hoverState, {
             duration: 1,
             value: 1,
           });
-        };
+        });
 
         img.onmouseout = () => {
           console.log("onmouseout");
@@ -139,13 +152,6 @@ export default ({ element, triggerElement }: any) => {
           });
         };
 
-        imageMaterial.uniforms.uImage.value = texture;
-        setMaterials([...materials, imageMaterial]);
-
-        let newMesh = new THREE.Mesh(newGeometry, imageMaterial);
-
-        scene?.add(newMesh);
-
         return {
           img: img,
           mesh: newMesh,
@@ -154,11 +160,16 @@ export default ({ element, triggerElement }: any) => {
           width: bounds.width,
           height: bounds.height,
         };
-      }
+      })
     );
+
     setImageStore(newImageStore);
     setMouseMovement();
-  }, [cardImages, scene]);
+  };
+
+  useEffect(() => {
+    mountImages();
+  }, [cardImages, scene, element]);
 
   const getElementSize = () => ({
     height: element.current.clientHeight,
@@ -168,10 +179,10 @@ export default ({ element, triggerElement }: any) => {
   });
 
   const setMouseMovement = () => {
-    element.current.addEventListener(
+    element?.current?.addEventListener(
       "mousemove",
       (event: MouseEvent) => {
-        if (!camera || !scene) {
+        if (!camera || !scene || !mouse) {
           return;
         }
 
@@ -192,7 +203,6 @@ export default ({ element, triggerElement }: any) => {
         const intersects = raycaster.intersectObjects(scene.children);
 
         if (intersects.length > 0) {
-          // console.log(intersects[0]);
           let obj: any = intersects[0].object;
 
           if (obj.material) {
