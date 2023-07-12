@@ -53,6 +53,7 @@ const useMountImages = ({
 
         let newImageStore: Array<ImageStore> = cardImages.map(
           (img: HTMLImageElement, index: number) => {
+            console.log("index", index);
             let bounds = img.getBoundingClientRect();
 
             let newGeometry = new THREE.PlaneGeometry(
@@ -82,8 +83,6 @@ const useMountImages = ({
               });
             };
 
-            setMaterials([...materials, imageMaterial]);
-
             imageMaterial.uniforms.uImage.value = texture;
             let newMesh = new THREE.Mesh(newGeometry, imageMaterial);
 
@@ -92,6 +91,7 @@ const useMountImages = ({
             return {
               img: img,
               mesh: newMesh,
+              imageMaterial,
               top: bounds.top,
               left: bounds.left,
               width: bounds.width,
@@ -102,10 +102,13 @@ const useMountImages = ({
 
         setImageStore(newImageStore);
         setPosition();
+
+        setMaterials(newImageStore.map(({ imageMaterial }) => imageMaterial));
       } catch (error) {
         console.error(error);
       }
     };
+
     mountImages();
   }, [cardImages, scene]);
 

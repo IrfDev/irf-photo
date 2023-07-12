@@ -3,7 +3,7 @@ import { useEffect, useRef } from "react";
 import BaseButton from "../atoms/BaseButton";
 import GalleryCard from "../atoms/GalleryCard";
 import RichText from "../atoms/RichText";
-import MainScene from "../organisms/MainScene";
+import isRefReady from "../../three/hooks/isRefReady";
 import getMounter from "../../three/example/useMain";
 
 import { GALLERY_SECTION_CLASSNAME } from "../../types/constants";

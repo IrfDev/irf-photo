@@ -1,8 +1,15 @@
-import React, { MutableRefObject, useEffect, useState } from "react";
+import React, {
+  MutableRefObject,
+  useEffect,
+  useState,
+  Dispatch,
+  SetStateAction,
+} from "react";
 import * as THREE from "three";
 import { useStartScene } from "../hooks/StartScene";
 import useMountImages from "../hooks/mountImages";
 import useMouseMovement from "../hooks/useMouseMovement";
+import { gsap } from "gsap";
 
 export type ImageStore = {
   img: HTMLImageElement;
@@ -11,6 +18,7 @@ export type ImageStore = {
   left: number;
   width: number;
   height: number;
+  imageMaterial: THREE.ShaderMaterial;
 };
 
 export default ({
@@ -20,21 +28,28 @@ export default ({
 }) => {
   const [time, setTime] = useState<number>(0);
 
-  const animationFunction = () => {
+  const animationFunction = function (
+    actualTime: any,
+    settingTime: (
+      a: number
+    ) => void | Dispatch<SetStateAction<number>> = () => {},
+    newTime = 0
+  ) {
     if (!materials || !renderer || !camera || !scene) {
       return;
     }
 
-    setTime(time + 0.5);
-
     setPosition();
 
-    materials.forEach((m) => {
-      m.uniforms.time.value = time + 0.5;
-    });
+    newTime += 0.05;
+
+    settingTime(newTime);
 
     renderer?.render(scene, camera);
-    window.requestAnimationFrame(animationFunction);
+
+    window.requestAnimationFrame(function (someTime) {
+      animationFunction(someTime, setTime, newTime);
+    });
   };
 
   let { mountScene, camera, renderer, scene } = useStartScene({
@@ -46,6 +61,12 @@ export default ({
     element,
     scene,
   });
+
+  useEffect(() => {
+    materials.forEach((m) => {
+      m.uniforms.time.value = time;
+    });
+  }, [time, materials]);
 
   useMouseMovement({ camera, element, scene });
 
