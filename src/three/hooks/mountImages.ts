@@ -13,7 +13,7 @@ const useMountImages = ({
   element,
 }: {
   scene: THREE.Scene | null;
-  element: MutableRefObject<HTMLCanvasElement>;
+  element: MutableRefObject<HTMLCanvasElement | null>;
 }) => {
   const { cardImages } = useGetGalleryCardImage();
   const [materials, setMaterials] = useState<THREE.ShaderMaterial[]>([]);
@@ -22,7 +22,11 @@ const useMountImages = ({
   let setPosition = () => {
     if (Array.isArray(imageStore) && imageStore.length > 0) {
       let { height, width, top, left } = getElementSize(element);
+
       imageStore.forEach((o) => {
+        if (!height || !width || !top || !left) {
+          return;
+        }
         let actualTop = Math.abs(top - o.top);
         let actualLeft = Math.abs(left - o.left);
 

@@ -4,7 +4,7 @@ import * as THREE from "three";
 import { getElementSize } from "../utils/canvasElementFunctions";
 
 type MouseMovementHookArgs = {
-  element: MutableRefObject<HTMLCanvasElement>;
+  element: MutableRefObject<HTMLCanvasElement | null>;
   scene: THREE.Scene | null;
   camera: THREE.Camera | null;
 };
@@ -21,11 +21,15 @@ const useMouseMovement = ({
     element?.current?.parentElement?.addEventListener(
       "mousemove",
       (event: MouseEvent) => {
-        if (!camera || !scene) {
+        if (!camera || !scene || !element) {
           return;
         }
 
         let { width, height, top } = getElementSize(element);
+
+        if (!width || !height || !top) {
+          return;
+        }
 
         let mouseX = (event.clientX / width) * 2 - 1;
 

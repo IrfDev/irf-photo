@@ -24,7 +24,7 @@ export type ImageStore = {
 export default ({
   element,
 }: {
-  element: MutableRefObject<HTMLCanvasElement>;
+  element: MutableRefObject<HTMLCanvasElement | null>;
 }) => {
   const [time, setTime] = useState<number>(0);
 
