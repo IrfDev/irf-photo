@@ -2,7 +2,7 @@ import React, { useState, useEffect, MutableRefObject } from "react";
 
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/dist/ScrollTrigger";
-import ScrollSmoother from "../lib/scrollSmoother";
+
 import { GALLERY_SECTION_CLASSNAME } from "../types/constants";
 
 interface ScrollTriggerArgs {
@@ -12,7 +12,7 @@ interface ScrollTriggerArgs {
 const lerp = (a, b, n) => (1 - n) * a + n * b;
 
 export default function getScrollTrigger(elementId: any) {
-  gsap.registerPlugin(ScrollTrigger, ScrollSmoother);
+  gsap.registerPlugin(ScrollTrigger);
 
   const ease = 0.5;
 
