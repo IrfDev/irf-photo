@@ -89,13 +89,13 @@ void main() {
     
     float dist = distance(uv,hover);
 
-    newposition.z += hoverState*9.*sin(dist*9. + time);
+    newposition.z += hoverState*10.*sin(dist*10. + time);
 
     // newposition.z += 0.05*sin(dist*40. );
 
     // newposition += 0.1*normal*noise;
 
-    vNoise = hoverState*sin(dist*2. - time);
+    vNoise = hoverState*sin(dist*10. - time);
     vUv = uv;
 
     gl_Position = projectionMatrix * modelViewMatrix * vec4( newposition, 1.0 );

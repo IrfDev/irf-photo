@@ -15,10 +15,6 @@ type InitializatorArgs = {
 export function useStartScene({
   element,
   animationFunction,
-  cameraArgs = [],
-  rendererArgs = [],
-  sceneArgs = [],
-  withControls = false,
 }: InitializatorArgs) {
   const [scene, setScene] = useState<null | THREE.Scene>(null);
 

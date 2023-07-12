@@ -29,7 +29,6 @@ const Galleries = ({
 
   const { mountScene, renderer } = getMounter({
     element: divRef,
-    triggerElement,
   });
 
   useEffect(() => {
